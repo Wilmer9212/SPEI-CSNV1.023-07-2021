@@ -15,17 +15,17 @@ public class Bank {
     String description;
     String routingCode;
     String countryId;
-    String headquartersAddress;
+    String headQuartersAddress;
 
     public Bank() {
     }
 
-    public Bank(Integer bankId, String description, String routingCode, String countryId, String headquartersAddress) {
+    public Bank(Integer bankId, String description, String routingCode, String countryId, String headQuartersAddress) {
         this.bankId = bankId;
         this.description = description;
         this.routingCode = routingCode;
         this.countryId = countryId;
-        this.headquartersAddress = headquartersAddress;
+        this.headQuartersAddress = headQuartersAddress;
     }
 
     public Integer getBankId() {
@@ -60,12 +60,12 @@ public class Bank {
         this.countryId = countryId;
     }
 
-    public String getHeadquartersAddress() {
-        return headquartersAddress;
+    public String getHeadQuartersAddress() {
+        return headQuartersAddress;
     }
 
-    public void setHeadquartersAddress(String headquartersAddress) {
-        this.headquartersAddress = headquartersAddress;
+    public void setHeadQuartersAddress(String headquartersAddress) {
+        this.headQuartersAddress = headquartersAddress;
     }
 
    
