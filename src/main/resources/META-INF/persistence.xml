@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence version="2.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence              http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
-    <persistence-unit name="conexion" transaction-type="RESOURCE_LOCAL">
-        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider> 
-        	
-        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+    <persistence-unit name="conexion" transaction-type="RESOURCE_LOCAL">              
+        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+        <exclude-unlisted-classes>false</exclude-unlisted-classes> 
         <properties>
-            <property name="hibernate.jdbc.use_get_generated_keys" value="true" />
+            
+            <!--<property name="hibernate.jdbc.use_get_generated_keys" value="true" />
             <property name="hibernate.temp.use_jdbc_metadata_defaults" value="false"/>
             <property name="hibernate.jdbc.use_scrollable_resultset" value="true" />
             <property name="hibernate.archive.autodetection" value="class"/>
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
-            <property name="hibernate.c3p0.min_size" value="5"/>
-            <property name="hibernate.c3p0.max_size" value="30"/>
-            <property name="hibernate.c3p0.timeout" value="200"/>
+            <property name="hibernate.c3p0.min_size" value="7"/>
+            <property name="hibernate.c3p0.max_size" value="53"/>
+            <property name="hibernate.c3p0.timeout" value="100"/>
             <property name="hibernate.c3p0.max_statements" value="50"/>
-            <property name="hibernate.c3p0.idle_test_period" value="3000"/>
+            <property name="hibernate.c3p0.idle_test_period" value="1000"/>-->
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
-            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <!--<property name="hibernate.hbm2ddl.auto" value="update"/>
             <property name="hibernate.connection.release_mode" value="after_statement"/>
             <property name="connection.pool_size" value="1"/>
             <property name="dialect" value="org.postgresql.Driver"/>
             <property name="current_session_context_class" value="thread"/>
             <property name="cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
-            <property name="show_sql" value="true"/>
+            <property name="show_sql" value="true"/>-->
         </properties>
     </persistence-unit>
 </persistence>

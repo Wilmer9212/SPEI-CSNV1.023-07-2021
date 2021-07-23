@@ -12,7 +12,7 @@ import javax.ws.rs.core.Application;
  *
  * @author wilmer
  */
-@javax.ws.rs.ApplicationPath("services")
+@javax.ws.rs.ApplicationPath("spei")
 public class ApplicationConfig extends Application {
 
     @Override
@@ -31,14 +31,7 @@ public class ApplicationConfig extends Application {
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider.class);
         resources.add(com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider.class);
-        resources.add(com.fenoreste.rest.Application.GenericResource.class);
-        resources.add(com.fenoreste.rest.services.AccountsResources.class);
-        resources.add(com.fenoreste.rest.services.CustomerResources.class);
-        resources.add(com.fenoreste.rest.services.LoanResources.class);
-        resources.add(com.fenoreste.rest.services.ProductsResources.class);
-        resources.add(com.fenoreste.rest.services.TercerosResources.class);
-        resources.add(com.fenoreste.rest.services.TestResources.class);
-        resources.add(com.fenoreste.rest.services.TransactionResources.class);
+        resources.add(com.fenoreste.rest.WSresources.ResourcesSPEI.class);
     }
     
 }

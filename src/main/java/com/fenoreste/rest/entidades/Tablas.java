@@ -12,21 +12,16 @@ import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author Wlliot
+ * @author Elliot
  */
 @Cacheable(false)
 @Entity
 @Table(name = "tablas")
-@XmlRootElement
 public class Tablas implements Serializable {
-
-
     private static final long serialVersionUID = 1L;
-
     @EmbeddedId
     protected TablasPK tablasPK;
     @Column(name = "nombre")

@@ -8,10 +8,12 @@ package com.fenoreste.rest.entidades;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -20,21 +22,20 @@ import javax.persistence.TemporalType;
  *
  * @author Elliot
  */
-@Cacheable(false)
 @Entity
 @Table(name = "auxiliares")
+
 public class Auxiliares implements Serializable {
-
     private static final long serialVersionUID = 1L;
-
+    
+    @EmbeddedId
+    protected AuxiliaresPK auxiliaresPK;
     @Column(name = "idorigen")
     private Integer idorigen;
     @Column(name = "idgrupo")
     private Integer idgrupo;
     @Column(name = "idsocio")
     private Integer idsocio;
-    @EmbeddedId
-    protected AuxiliaresPK auxiliaresPK;
     @Column(name = "fechaape")
     @Temporal(TemporalType.DATE)
     private Date fechaape;

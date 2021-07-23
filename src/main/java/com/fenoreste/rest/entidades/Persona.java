@@ -9,9 +9,11 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -25,7 +27,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @Table(name = "personas")
 public class Persona implements Serializable {
-
     private static final long serialVersionUID = 1L;
 
     @EmbeddedId

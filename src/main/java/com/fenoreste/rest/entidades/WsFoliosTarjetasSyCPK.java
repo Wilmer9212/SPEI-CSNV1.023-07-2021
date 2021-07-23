@@ -7,7 +7,9 @@ package com.fenoreste.rest.entidades;
 
 import java.io.Serializable;
 import java.util.Date;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -15,6 +17,8 @@ import javax.persistence.TemporalType;
  *
  * @author Elliot
  */
+@Cacheable(false)
+@Embeddable
 public class WsFoliosTarjetasSyCPK implements Serializable {
 
     @Column(name = "idorigenp")

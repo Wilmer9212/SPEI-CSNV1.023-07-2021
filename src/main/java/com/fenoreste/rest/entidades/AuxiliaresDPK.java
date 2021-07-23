@@ -17,7 +17,8 @@ import javax.persistence.TemporalType;
  *
  * @author Elliot
  */
-
+@Cacheable(false)
+@Embeddable
 public class AuxiliaresDPK implements Serializable {
 
     @Column(name = "idorigenp")
