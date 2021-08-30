@@ -98,7 +98,7 @@
    
 
     <build>
-        <finalName>Banca</finalName>   
+        <finalName>csn</finalName>   
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

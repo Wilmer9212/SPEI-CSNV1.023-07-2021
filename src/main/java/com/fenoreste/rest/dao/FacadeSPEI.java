@@ -1,13 +1,19 @@
 package com.fenoreste.rest.dao;
 
 import com.fenoreste.rest.Util.AbstractFacade;
-import com.fenoreste.rest.Util.OrdenPagoWS;
+import com.fenorest.rest.DTO.OrdenPagoWS;
+import com.fenorest.rest.DTO.RequestDataOrdenPagoDTO;
+import com.fenorest.rest.DTO.ResponseDTO;
 import com.fenoreste.rest.Util.SSLClient;
 import com.fenoreste.rest.entidades.Auxiliares;
 import com.fenoreste.rest.entidades.AuxiliaresPK;
+import com.fenoreste.rest.entidades.Bancos;
 import com.fenoreste.rest.entidades.EstadosSPEI;
 import com.fenoreste.rest.entidades.OrdenesSPEI;
-import com.github.cliftonlabs.json_simple.JsonObject;
+import com.fenoreste.rest.entidades.Persona;
+import com.fenoreste.rest.entidades.Tablas;
+import com.fenoreste.rest.entidades.TablasPK;
+import com.fenoreste.rest.entidades.ws_siscoop_clabe_interbancaria;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -21,11 +27,15 @@ import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPrivateKey;
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Date;
 import java.util.Random;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Query;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -39,59 +49,31 @@ public abstract class FacadeSPEI<T> {
     private static EntityManagerFactory emf;
     //Endpoint para pruebas  
     String url = "https://demo.stpmex.com:7024/speiws/rest/ordenPago/registra";
-    //Cargamos cacerts donde tambien se añado el certificado que se genero
-    String trustStore = "/usr/java/jdk1.8.0_231-amd64/jre/lib/security/cacert";
-    String trusStorePassword = "changeit";
 
+    //Cargamos cacerts donde tambien se añado el certificado que se genero
+    /*String trustsStore = "/usr/java/jdk1.8.0_231-amd64/jre/lib/security/cacert";
+    String trussStorePassword = "changeit";*/
     public FacadeSPEI(Class<T> entityClass) {
         emf = AbstractFacade.conexion();
     }
 
-    public void registrarOrdenSPEI(OrdenPagoWS orden) {
-
-    }
-
-    public JSONObject llenarOrdenPago(AuxiliaresPK auxiliaresPK, Double monto) {
+    //Enviamos la orden de pago
+    public ResponseDTO sendOrderPage(RequestDataOrdenPagoDTO dataRequest) {
         EntityManager em = emf.createEntityManager();
         OrdenPagoWS orden = new OrdenPagoWS();
-        JsonObject json = new JsonObject();
+        JSONObject jsonObject = new JSONObject();
         JSONObject response = null;
+        //Formamos la orden espei
+        orden = formarOrdenPago(dataRequest);
+        ResponseDTO dtoResponse = new ResponseDTO();
         try {
-             Random rnd = new Random();
-           
-           
-            //para csn siempre sera el producto 133
+            //La cuenta 846 es para pruebas de desarrollo
             orden.setInstitucionContraparte(846);
-            orden.setEmpresa("CSN795");
-            orden.setClaveRastreo(String.valueOf(rnd.nextInt(500000000-4+2)+5));
-            orden.setInstitucionOperante(90646);
-            orden.setMonto(String.valueOf(monto));
-            orden.setTipoPago(1);
-            orden.setTipoCuentaOrdenante(40);
-            orden.setNombreOrdenante("DIONEI NATANAEL LUCIO LOPEZ");
-            orden.setCuentaOrdenante("646010132301064944");
-            orden.setRfcCurpOrdenante("LULD941215828");
-            orden.setTipoCuentaBeneficiario(40);
-            orden.setNombreBeneficiario("CESAR TELLO TORRES");
-            orden.setCuentaBeneficiario("846180000400000001");
-            orden.setRfcCurpBeneficiario("TETC771120UM0");
-            orden.setConceptoPago("Prueba REST");
-            orden.setReferenciaNumerica(1234567);
-            //lo utilizo para darle la numeracion que la documentacion me pide
-            DecimalFormat df1 = new DecimalFormat("#.00");
-            df1.setMaximumFractionDigits(2);
-            df1.setMaximumIntegerDigits(19);
-            String montoCodificado = "";
-            if (df1.getMaximumIntegerDigits() == 19 && df1.getMaximumFractionDigits() == 2) {
-                montoCodificado = df1.format(new BigDecimal(orden.getMonto()));
-            }
-            orden.setMonto(montoCodificado);
-            JSONObject jsonObject = new JSONObject();
             jsonObject.put("institucionContraparte", orden.getInstitucionContraparte());
             jsonObject.put("empresa", orden.getEmpresa());
             jsonObject.put("claveRastreo", orden.getClaveRastreo());
             jsonObject.put("institucionOperante", orden.getInstitucionOperante());
-            jsonObject.put("monto", montoCodificado);
+            jsonObject.put("monto", orden.getMonto());
             jsonObject.put("tipoPago", orden.getTipoPago());
             jsonObject.put("tipoCuentaOrdenante", orden.getTipoCuentaOrdenante());
             jsonObject.put("nombreOrdenante", orden.getNombreOrdenante());
@@ -105,82 +87,191 @@ public abstract class FacadeSPEI<T> {
             jsonObject.put("referenciaNumerica", orden.getReferenciaNumerica());
             jsonObject.put("firma", getFirma(orden));
             //Realizo la peticion el web service de STP
+            System.out.println("JsonObject:" + jsonObject);
             response = new JSONObject(doPut(url, jsonObject.toString(), "UTF-8"));
-            
-            if(response.getJSONObject("resultado").getInt("id")>3){
-             int id=response.getJSONObject("resultado").getInt("id");
-                persistirTransferenciaSPEI(orden,id);
-             }
-            System.out.println("response=" + response);
+
+            dtoResponse.setId(0);
+            dtoResponse.setError("");
+
+            if (response.getJSONObject("resultado").getInt("id") > 3) {
+                int id = response.getJSONObject("resultado").getInt("id");
+                if (persistirTransferenciaSPEI(orden, id)) {
+                    dtoResponse.setId(id);
+                } else {
+                    dtoResponse.setError("No se puedo persisitir la orden a la base de datos");
+                }
+            } else {
+                int id = response.getJSONObject("resultado").getInt("id");
+                String error = response.getJSONObject("resultado").getString("descripcionError");
+                dtoResponse.setId(id);
+                dtoResponse.setError(error);
+            }
         } catch (Exception e) {
             System.out.println("Error al enviar orden:" + e.getMessage());
         }
         em.close();
-        return response;
+        return dtoResponse;
     }
-    
+
+    public OrdenPagoWS formarOrdenPago(RequestDataOrdenPagoDTO requestData) {
+        EntityManager em = emf.createEntityManager();
+        OrdenPagoWS orden = new OrdenPagoWS();
+        System.out.println("entra");
+        try {
+            Date now = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+            String fechaActual = sdf.format(now).replace("/", "");
+            System.out.println("FechaActual:" + fechaActual);
+            //Primero busco el socio que esta generando la orden SPEI
+            String socio = "SELECT * FROM personas WHERE replace(to_char(idorigen,'099999')||to_char(idgrupo,'09')||to_char(idsocio,'099999'),' ','')='" + requestData.getCliente() + "'";
+            System.out.println("Socio:" + socio);
+            Query socio_ = em.createNativeQuery(socio, Persona.class);
+            Persona p = (Persona) socio_.getSingleResult();
+            //Busco el banco al que se destinaran los fondos
+            String banco = "SELECT * FROM bancos WHERE nombre LIKE'%" + requestData.getInstitucionContraparte().toUpperCase() + "%'";
+            System.out.println("Banco:" + banco);
+            Query banco_ = em.createNativeQuery(banco, Bancos.class);
+            Bancos institucionDestino = (Bancos) banco_.getSingleResult();
+            //Busco la empresa ordenante
+            TablasPK tbpk = new TablasPK("spei_csn", "empresa");
+            Tablas tbempresa = em.find(Tablas.class, tbpk);
+            //Genero la clave de rastreo
+            Random rnd = new Random();
+            String claveRastreo = tbempresa.getDato1() + fechaActual + String.valueOf(rnd.nextInt(500000000 - 4 + 2) + 5);
+            System.out.println("claveRastreo:" + claveRastreo.length());
+
+            //para csn siempre sera el producto 133
+            orden.setInstitucionContraparte(institucionDestino.getIdbanco());
+            orden.setEmpresa(tbempresa.getDato1());
+            orden.setClaveRastreo(claveRastreo);
+            //Institucion operante es fijo para STP
+            orden.setInstitucionOperante(90646);
+            orden.setMonto(String.valueOf(requestData.getMonto()));
+            //Tipo pago es fijo (1.-Tercero-Tercero)
+            orden.setTipoPago(1);
+            //Estatico porque solo se manejan cuentas clabe
+            orden.setTipoCuentaOrdenante(40);
+            orden.setNombreOrdenante(p.getNombre() + " " + p.getAppaterno() + " " + p.getApmaterno());
+            //Buscamos la cuenta ordenante para la persona
+            //Obtengo el auxiliar con con el producto 133 TDD que es el que opera para TDD
+            String auxi = "SELECT * FROM auxiliares WHERE replace(to_char(idorigen,'099999')||to_char(idgrupo,'09')||to_char(idsocio,'099999'),' ','')='" + requestData.getCliente() + "' AND idproducto=" + 133;
+            System.out.println("RegistroAuxiliar:" + auxi);
+            Query productoSPEI_ = em.createNativeQuery(auxi, Auxiliares.class);
+            Auxiliares a = (Auxiliares) productoSPEI_.getSingleResult();
+            System.out.println("aa:" + a);
+            AuxiliaresPK auxPK = new AuxiliaresPK(a.getAuxiliaresPK().getIdorigenp(), a.getAuxiliaresPK().getIdproducto(), a.getAuxiliaresPK().getIdauxiliar());
+            ws_siscoop_clabe_interbancaria clabe = em.find(ws_siscoop_clabe_interbancaria.class, auxPK);
+            orden.setCuentaOrdenante(clabe.getClabe());
+            orden.setRfcCurpOrdenante(p.getCurp());
+            orden.setTipoCuentaBeneficiario(40);
+            orden.setNombreBeneficiario(requestData.getNombreBeneficiario());
+            orden.setCuentaBeneficiario(requestData.getCuentaBeneficiario());
+            orden.setRfcCurpBeneficiario(requestData.getRfcCurpBeneficiario());
+            int referenciaNumerica = rnd.nextInt(300000 - 8 + 1) + 7;
+            orden.setConceptoPago(requestData.getConceptoPago());
+            orden.setReferenciaNumerica(referenciaNumerica);
+            //lo utilizo para darle la numeracion que la documentacion me pide
+            DecimalFormat df1 = new DecimalFormat("#.00");
+            df1.setMaximumFractionDigits(2);
+            df1.setMaximumIntegerDigits(19);
+            String montoCodificado = "";
+            if (df1.getMaximumIntegerDigits() == 19 && df1.getMaximumFractionDigits() == 2) {
+                montoCodificado = df1.format(new BigDecimal(orden.getMonto()));
+            }
+            orden.setMonto(montoCodificado);
+        } catch (Exception e) {
+            System.out.println("Error al llenar orde pago SPEI:" + e.getMessage());
+        }
+        return orden;
+    }
+
     //Persistimos nuestra Transferencia SPEI
-    public boolean persistirTransferenciaSPEI(OrdenPagoWS orden,int idOrden){
-        EntityManager em=emf.createEntityManager();
+    public boolean persistirTransferenciaSPEI(OrdenPagoWS orden, int idOrden) {
+        EntityManager em = emf.createEntityManager();
         try {
-         em.getTransaction().begin();
-         OrdenesSPEI ordenSPEI=new OrdenesSPEI();
-         ordenSPEI.setIdorden(idOrden);
-         ordenSPEI.setClaverastreo(orden.getClaveRastreo());
-         ordenSPEI.setConceptopago(orden.getConceptoPago());
-         ordenSPEI.setCuentabeneficiario(orden.getCuentaBeneficiario());
-         ordenSPEI.setCuentaordenante(orden.getCuentaOrdenante());
-         ordenSPEI.setEmpresa(orden.getEmpresa());
-         ordenSPEI.setInstitucioncontraparte(orden.getInstitucionContraparte());
-         ordenSPEI.setInstitucionoperante(orden.getInstitucionOperante());
-         ordenSPEI.setMonto(Double.parseDouble(orden.getMonto()));
-         ordenSPEI.setNombrebeneficiario(orden.getNombreBeneficiario());
-         ordenSPEI.setNombreordenante(orden.getNombreOrdenante());
-         ordenSPEI.setReferencianumerica(orden.getReferenciaNumerica());
-         ordenSPEI.setRfccurpbeneficiario(orden.getRfcCurpBeneficiario());
-         ordenSPEI.setRfccurpordenante(orden.getNombreOrdenante());
-         ordenSPEI.setTipocuentabeneficiario(orden.getTipoCuentaBeneficiario());
-         ordenSPEI.setTipocuentaordenante(orden.getTipoCuentaOrdenante());
-         ordenSPEI.setTipopago(orden.getTipoPago());
-         em.persist(ordenSPEI);
-         em.getTransaction().commit();         
-        } catch (Exception e) {
-            em.close();
-            System.out.println("Exception al persistir:"+e.getMessage());
-            return false;
-        }
-        em.close();
-        return true;
-    }
-    
-    //Metodo para que proveedor me actualize estado de orden spei
-    public boolean actualizaEstadoOrden(int idOrden,String empresa,String folioOrigen,String estado,String causaDevolucion){
-        EntityManager em=emf.createEntityManager();
-        try {
-        em.getTransaction().begin();
-        EstadosSPEI estados=new EstadosSPEI();
-        estados.setIdorden(idOrden);
-        estados.setEmpresa(empresa);
-        estados.setFolioorigen(folioOrigen);
-        estados.setEstado(estado);
-        estados.setCausadevolucion(causaDevolucion);
-        em.persist(estados);
-        OrdenesSPEI orden1=em.find(OrdenesSPEI.class,idOrden);
-        orden1.setEstatus1(estado);
-        em.persist(orden1);
-        em.getTransaction().commit();
-        } catch (Exception e) {
-            em.close();
+            long time = System.currentTimeMillis();
+            Timestamp timestamp = new Timestamp(time);
+            em.getTransaction().begin();
+            OrdenesSPEI ordenSPEI = new OrdenesSPEI();
+            ordenSPEI.setIdorden(idOrden);
+            ordenSPEI.setClaverastreo(orden.getClaveRastreo());
+            ordenSPEI.setConceptopago(orden.getConceptoPago());
+            ordenSPEI.setCuentabeneficiario(orden.getCuentaBeneficiario());
+            ordenSPEI.setCuentaordenante(orden.getCuentaOrdenante());
+            ordenSPEI.setEmpresa(orden.getEmpresa());
+            ordenSPEI.setInstitucioncontraparte(orden.getInstitucionContraparte());
+            ordenSPEI.setInstitucionoperante(orden.getInstitucionOperante());
+            ordenSPEI.setMonto(Double.parseDouble(orden.getMonto()));
+            ordenSPEI.setNombrebeneficiario(orden.getNombreBeneficiario());
+            ordenSPEI.setNombreordenante(orden.getNombreOrdenante());
+            ordenSPEI.setReferencianumerica(orden.getReferenciaNumerica());
+            ordenSPEI.setRfccurpbeneficiario(orden.getRfcCurpBeneficiario());
+            ordenSPEI.setRfccurpordenante(orden.getNombreOrdenante());
+            ordenSPEI.setTipocuentabeneficiario(orden.getTipoCuentaBeneficiario());
+            ordenSPEI.setTipocuentaordenante(orden.getTipoCuentaOrdenante());
+            ordenSPEI.setTipopago(orden.getTipoPago());
+            ordenSPEI.setEstatus("Enviado");
+            ordenSPEI.setFechaejecucion(timestamp);
+            em.persist(ordenSPEI);
             em.getTransaction().commit();
-            System.out.println("Error:"+e.getMessage());
-            System.out.println("Fallo al Actualizar estados para:"+idOrden);
+        } catch (Exception e) {
+            em.close();
+            System.out.println("Exception al persistir:" + e.getMessage());
             return false;
         }
         em.close();
         return true;
-        
     }
-    //Cosigo la firma codificando mi cadena 
+
+    //Metodo para que proveedor me actualize estado de orden spei
+    public String actualizaEstadoOrden(int idOrden, String empresa, String folioOrigen, String estado, String causaDevolucion) {
+        EntityManager em = emf.createEntityManager();
+        String message = "";
+        try {
+            OrdenesSPEI orden1 = em.find(OrdenesSPEI.class, idOrden);
+            long time = System.currentTimeMillis();
+            Timestamp timestamp = new Timestamp(time);
+            if (orden1 != null) {
+                if (!estado.equals("")) {
+                    if (!causaDevolucion.equals("")) {
+                        em.getTransaction().begin();
+                        orden1.setEstatus(estado);                        
+                        EstadosSPEI estados = new EstadosSPEI();
+                        estados.setIdorden(idOrden);
+                        estados.setEmpresa(empresa);
+                        estados.setFolioorigen(folioOrigen);
+                        estados.setEstado(estado);
+                        estados.setCausadevolucion(causaDevolucion);
+                        estados.setFhoraaplicado(timestamp);
+                        em.persist(estados);
+                        em.persist(orden1);
+                        em.getTransaction().commit();
+                        message = "Estado actualizado con exito";
+                    }else{
+                        message="Causa devolucion no valida";
+                    }
+                }else{
+                    message="Estado invalido";
+                }
+            } else {
+                message = "Orden:" + idOrden + " no existe";
+            }
+
+        } catch (Exception e) {
+            em.close();
+            em.getTransaction().rollback();
+            em.getTransaction().commit();
+            System.out.println("Error:" + e.getMessage());
+            System.out.println("Fallo al Actualizar estados para:" + idOrden);
+            message = "Orden:" + idOrden + " no existe";
+            return message;
+        }
+        em.close();
+        return message;
+
+    }
+
+    //Consigo la firma codificando mi cadena 
     public String getFirma(OrdenPagoWS oPW) {
         StringBuilder sB = new StringBuilder();
         String firma = "";
@@ -233,8 +324,10 @@ public abstract class FacadeSPEI<T> {
     //Consigo mi firma
     public String sign(String cadena) throws Exception {
         String firmaCod;
-        //Direccion de mi keystore
+        //Direccion de mi keystore local
         String fileName = "/home/wilmer/respaldo/ProyectosJavaPruebas/CA/feno.jks";
+        //Direccion en CSN
+        //String fileName = "/home/solvetic/Certificados/speiTest/feno.jks";
         //pass
         String password = "f3n0r3st3";
         //alias
@@ -293,8 +386,8 @@ public abstract class FacadeSPEI<T> {
         }
         return result;
     }
-    
-    public void cerrar(){
+
+    public void cerrar() {
         emf.close();
     }
 }

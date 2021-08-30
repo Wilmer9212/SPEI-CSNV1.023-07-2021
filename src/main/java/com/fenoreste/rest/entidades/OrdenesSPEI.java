@@ -6,10 +6,14 @@
 package com.fenoreste.rest.entidades;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  *
@@ -53,19 +57,15 @@ public class OrdenesSPEI implements Serializable {
     private String conceptopago;
     @Column(name = "referencianumerica")
     private Integer referencianumerica;
-    @Column(name = "estatus1")
-    private String estatus1;
-    @Column(name = "estatus2")
-    private String estatus2;
-    @Column(name = "estatus3")
-    private String estatus3;
-    @Column(name = "estatusfinal")
-    private String estatusfinal;
+    @Column(name = "estatus")
+    private String estatus;
+    @Column(name="fechaejecucion")
+    private Timestamp fechaejecucion;
 
     public OrdenesSPEI() {
     }
 
-    public OrdenesSPEI(Integer idorden, Integer institucioncontraparte, String empresa, String claverastreo, Integer institucionoperante, Double monto, Integer tipopago, Integer tipocuentaordenante, String nombreordenante, String cuentaordenante, String rfccurpordenante, Integer tipocuentabeneficiario, String nombrebeneficiario, String cuentabeneficiario, String rfccurpbeneficiario, String conceptopago, Integer referencianumerica, String estatus1, String estatus2, String estatus3, String estatusfinal) {
+    public OrdenesSPEI(Integer idorden, Integer institucioncontraparte, String empresa, String claverastreo, Integer institucionoperante, Double monto, Integer tipopago, Integer tipocuentaordenante, String nombreordenante, String cuentaordenante, String rfccurpordenante, Integer tipocuentabeneficiario, String nombrebeneficiario, String cuentabeneficiario, String rfccurpbeneficiario, String conceptopago, Integer referencianumerica, String estatus, Timestamp fechaejecucion) {
         this.idorden = idorden;
         this.institucioncontraparte = institucioncontraparte;
         this.empresa = empresa;
@@ -83,10 +83,8 @@ public class OrdenesSPEI implements Serializable {
         this.rfccurpbeneficiario = rfccurpbeneficiario;
         this.conceptopago = conceptopago;
         this.referencianumerica = referencianumerica;
-        this.estatus1 = estatus1;
-        this.estatus2 = estatus2;
-        this.estatus3 = estatus3;
-        this.estatusfinal = estatusfinal;
+        this.estatus = estatus;
+        this.fechaejecucion = fechaejecucion;
     }
 
     public Integer getIdorden() {
@@ -225,38 +223,27 @@ public class OrdenesSPEI implements Serializable {
         this.referencianumerica = referencianumerica;
     }
 
-    public String getEstatus1() {
-        return estatus1;
+    public String getEstatus() {
+        return estatus;
     }
 
-    public void setEstatus1(String estatus1) {
-        this.estatus1 = estatus1;
+    public void setEstatus(String estatus) {
+        this.estatus = estatus;
     }
 
-    public String getEstatus2() {
-        return estatus2;
+    public Timestamp getFechaejecucion() {
+        return fechaejecucion;
     }
 
-    public void setEstatus2(String estatus2) {
-        this.estatus2 = estatus2;
+    public void setFechaejecucion(Timestamp fechaejecucion) {
+        this.fechaejecucion = fechaejecucion;
     }
 
-    public String getEstatus3() {
-        return estatus3;
+    @Override
+    public String toString() {
+        return "OrdenesSPEI{" + "idorden=" + idorden + ", institucioncontraparte=" + institucioncontraparte + ", empresa=" + empresa + ", claverastreo=" + claverastreo + ", institucionoperante=" + institucionoperante + ", monto=" + monto + ", tipopago=" + tipopago + ", tipocuentaordenante=" + tipocuentaordenante + ", nombreordenante=" + nombreordenante + ", cuentaordenante=" + cuentaordenante + ", rfccurpordenante=" + rfccurpordenante + ", tipocuentabeneficiario=" + tipocuentabeneficiario + ", nombrebeneficiario=" + nombrebeneficiario + ", cuentabeneficiario=" + cuentabeneficiario + ", rfccurpbeneficiario=" + rfccurpbeneficiario + ", conceptopago=" + conceptopago + ", referencianumerica=" + referencianumerica + ", estatus=" + estatus + ", fechaejecucion=" + fechaejecucion + '}';
     }
-
-    public void setEstatus3(String estatus3) {
-        this.estatus3 = estatus3;
-    }
-
-    public String getEstatusfinal() {
-        return estatusfinal;
-    }
-
-    public void setEstatusfinal(String estatusfinal) {
-        this.estatusfinal = estatusfinal;
-    }
-
+    
     
     
 }

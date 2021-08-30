@@ -1,5 +1,6 @@
 package com.fenoreste.rest.Util;
 
+import com.fenorest.rest.DTO.OrdenPagoWS;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -10,13 +11,17 @@ import java.util.Base64;
 import java.util.Base64.Encoder;
 
 public class CryptoHandler {
-
-    String fileName = "/home/wilmer/respaldo/ProyectosJavaPruebas/CA/feno.jks";
+     
+    //Prueba en local
+    //String fileName = "/home/wilmer/respaldo/ProyectosJavaPruebas/CA/feno.jks";
+    //Prueba en csn
+    String fileName = "/home/solvetic/Certificados/speiTest/feno.jks";    
     String password = "f3n0r3st3";
     String alias = "fenoresteca";
 
     public String firmar(OrdenPagoWS oPW) throws Exception {
         String firma;
+        System.out.println("Fimando");
         try {
             firma = sign(cadenaOriginal(oPW));
         } catch (Exception e) {

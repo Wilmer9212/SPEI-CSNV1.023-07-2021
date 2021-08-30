@@ -1,4 +1,4 @@
-package com.fenoreste.rest.Util;
+package com.fenorest.rest.DTO;
 
 import java.math.BigDecimal;
 
@@ -579,4 +579,11 @@ public class OrdenPagoWS {
     public void setUsuario(String value) {
         this.usuario = value;
     }
+
+    @Override
+    public String toString() {
+        return "OrdenPagoWS{" + "causaDevolucion=" + causaDevolucion + ", claveCatUsuario1=" + claveCatUsuario1 + ", claveCatUsuario2=" + claveCatUsuario2 + ", clavePago=" + clavePago + ", claveRastreo=" + claveRastreo + ", claveRastreoDevolucion=" + claveRastreoDevolucion + ", conceptoPago=" + conceptoPago + ", conceptoPago2=" + conceptoPago2 + ", cuentaBeneficiario=" + cuentaBeneficiario + ", cuentaBeneficiario2=" + cuentaBeneficiario2 + ", cuentaOrdenante=" + cuentaOrdenante + ", digitoIdentificadorBeneficiario=" + digitoIdentificadorBeneficiario + ", digitoIdentificadorOrdenante=" + digitoIdentificadorOrdenante + ", emailBeneficiario=" + emailBeneficiario + ", empresa=" + empresa + ", error=" + error + ", estado=" + estado + ", fechaLimitePago=" + fechaLimitePago + ", fechaOperacion=" + fechaOperacion + ", firma=" + firma + ", folioOrigen=" + folioOrigen + ", folioPlataforma=" + folioPlataforma + ", idCliente=" + idCliente + ", idEF=" + idEF + ", institucionContraparte=" + institucionContraparte + ", institucionOperante=" + institucionOperante + ", iva=" + iva + ", medioEntrega=" + medioEntrega + ", monto=" + monto + ", montoComision=" + montoComision + ", montoInteres=" + montoInteres + ", montoOriginal=" + montoOriginal + ", nombreBeneficiario=" + nombreBeneficiario + ", nombreBeneficiario2=" + nombreBeneficiario2 + ", nombreOrdenante=" + nombreOrdenante + ", numCelularBeneficiario=" + numCelularBeneficiario + ", numCelularOrdenante=" + numCelularOrdenante + ", pagoComision=" + pagoComision + ", prioridad=" + prioridad + ", referenciaCobranza=" + referenciaCobranza + ", referenciaNumerica=" + referenciaNumerica + ", reintentos=" + reintentos + ", rfcCurpBeneficiario=" + rfcCurpBeneficiario + ", rfcCurpBeneficiario2=" + rfcCurpBeneficiario2 + ", rfcCurpOrdenante=" + rfcCurpOrdenante + ", serieCertificado=" + serieCertificado + ", swift1=" + swift1 + ", swift2=" + swift2 + ", tipoCuentaBeneficiario=" + tipoCuentaBeneficiario + ", tipoCuentaBeneficiario2=" + tipoCuentaBeneficiario2 + ", tipoCuentaOrdenante=" + tipoCuentaOrdenante + ", tipoOperacion=" + tipoOperacion + ", tipoPago=" + tipoPago + ", topologia=" + topologia + ", tsAcuseBanxico=" + tsAcuseBanxico + ", tsAcuseConfirmacion=" + tsAcuseConfirmacion + ", tsCaptura=" + tsCaptura + ", tsConfirmacion=" + tsConfirmacion + ", tsDevolucion=" + tsDevolucion + ", tsDevolucionRecibida=" + tsDevolucionRecibida + ", tsEntrega=" + tsEntrega + ", tsLiquidacion=" + tsLiquidacion + ", uetr=" + uetr + ", usuario=" + usuario + '}';
+    }
+    
+    
 }

@@ -6,6 +6,7 @@
 package com.fenoreste.rest.entidades;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -26,8 +27,18 @@ public class EstadosSPEI implements Serializable{
     private String folioorigen;
     private String estado;
     private String causadevolucion;
+    private Timestamp fhoraaplicado;
 
     public EstadosSPEI() {
+    }
+
+    public EstadosSPEI(int idorden, String empresa, String folioorigen, String estado, String causadevolucion, Timestamp fhoraaplicado) {
+        this.idorden = idorden;
+        this.empresa = empresa;
+        this.folioorigen = folioorigen;
+        this.estado = estado;
+        this.causadevolucion = causadevolucion;
+        this.fhoraaplicado = fhoraaplicado;
     }
 
     public int getIdorden() {
@@ -70,11 +81,15 @@ public class EstadosSPEI implements Serializable{
         this.causadevolucion = causadevolucion;
     }
 
-    @Override
-    public String toString() {
-        return "EstadosSPEI{" + "idorden=" + idorden + ", empresa=" + empresa + ", folioorigen=" + folioorigen + ", estado=" + estado + ", causadevolucion=" + causadevolucion + '}';
+    public Timestamp getFhoraaplicado() {
+        return fhoraaplicado;
     }
-    
+
+    public void setFhoraaplicado(Timestamp fhoraaplicado) {
+        this.fhoraaplicado = fhoraaplicado;
+    }
+
+   
     
     
 }
